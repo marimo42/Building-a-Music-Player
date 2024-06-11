@@ -80,7 +80,7 @@ const allSongs = [
 
 const audio = new Audio();
 let userData = {
-  songs: [...allSongs],
+  songs: [...allSongs],     //... is spread, like littery just copying the array and its elements
   currentSong: null,
   songCurrentTime: 0,
 };
@@ -132,6 +132,7 @@ const playPreviousSong = () =>{
    }
 };
 
+//for random/shuffled songs - use .sort(()=>Math.random()-0.5)
 const shuffle = () => {
   userData?.songs.sort(() => Math.random() - 0.5);
   userData.currentSong = null;
@@ -266,6 +267,7 @@ setPlayButtonAccessibleText();
     }
 });
 
+//this is to arrange songs alphabettically
 const sortSongs = () => {
   userData?.songs.sort((a,b) => {
     if (a.title < b.title) {
