@@ -85,45 +85,52 @@ let userData = {
   songCurrentTime: 0,
 };
 
+//third function made
 const playSong = (id) => {
   const song = userData?.songs.find((song) => song.id === id);
-  audio.src = song.src;
-  audio.title = song.title;
+  audio.src = song.src;       //This tells the audio element where to find the audio data for the selected song.
+  audio.title = song.title;   //This tells the audio element what to display as the title of the song.
 
+
+  //Before playing the song, you need to make sure it starts from the beginning
+  //This condition will check if no current song is playing or if the current song is different from the one that is about to be played.
   if (userData?.currentSong === null || userData?.currentSong.id !== song.id) {
     audio.currentTime = 0;
   } else {
-    audio.currentTime = userData?.songCurrentTime;
-  }
+    audio.currentTime = userData?.songCurrentTime;    //handle the song's current playback time.
+  }                                                   //allows you to resume the current song at the point where it was paused
   userData.currentSong = song;
   playButton.classList.add("playing");
 
   highlightCurrentSong();
   setPlayerDisplay();
   setPlayButtonAccessibleText();
-  audio.play();
+  audio.play();     //play() is a method from the web audio API for playing an mp3 file.
 };
 
+//fifth part
 const pauseSong = () => {
-  userData.songCurrentTime = audio.currentTime;
-  
+  userData.songCurrentTime = audio.currentTime;   //To store the current time of the song when it is paused
   playButton.classList.remove("playing");
-  audio.pause();
+  audio.pause();                                  //pause() is a method of the Web Audio API for pausing music files.
 };
 
+//seventh part 1
 const playNextSong = () => {
-  if (userData?.currentSong === null) {
+  if (userData?.currentSong === null) {   //This will check if there's no current song playing in the userData object.
     playSong(userData?.songs[0].id);
   } else {
     const currentSongIndex = getCurrentSongIndex();
-    const nextSong = userData?.songs[currentSongIndex + 1];
+    const nextSong = userData?.songs[currentSongIndex + 1];   //to retrieve the next song in the playlist
 
     playSong(nextSong.id);
   }
 };
 
+
+//seventh part 2
 const playPreviousSong = () =>{
-   if (userData?.currentSong === null) return;
+   if (userData?.currentSong === null) return;    //This will check if there is currently no song playing. If there isn't any, exit the function
    else {
     const currentSongIndex = getCurrentSongIndex();
     const previousSong = userData?.songs[currentSongIndex - 1];
@@ -132,19 +139,24 @@ const playPreviousSong = () =>{
    }
 };
 
+//11th part - responsible for shuffling the songs in the playlist and performing necessary state management updates after the shuffling.
 //for random/shuffled songs - use .sort(()=>Math.random()-0.5)
 const shuffle = () => {
   userData?.songs.sort(() => Math.random() - 0.5);
   userData.currentSong = null;
   userData.songCurrentTime = 0;
 
+  // re-render the songs, pause the currently playing song, set the player display, and set the play button accessible text again.
   renderSongs(userData?.songs);
   pauseSong();
   setPlayerDisplay();
   setPlayButtonAccessibleText();
 };
 
+//12th part - manage the removal of a song from the playlist & and create a Reset Playlist button when empty
 const deleteSong = (id) => {
+  //Before deleting a song, you need to check if the song is currently playing.
+  //If it is, you need to pause the song and play the next song in the playlist.
   if (userData?.currentSong?.id === id) {
     userData.currentSong = null;
     userData.songCurrentTime = 0;
@@ -179,16 +191,19 @@ const deleteSong = (id) => {
 
 };
 
+//ninth part - to display the current song title and artist in the player display
 const setPlayerDisplay = () => {
   const playingSong = document.getElementById("player-song-title");
   const songArtist = document.getElementById("player-song-artist");
   const currentTitle = userData?.currentSong?.title;
   const currentArtist = userData?.currentSong?.artist;
 
-  playingSong.textContent = currentTitle ? currentTitle : "";
+  //textContent sets the text of a node and allows you to set or retrieve the text content of an HTML element.
+  playingSong.textContent = currentTitle ? currentTitle : "";   
   songArtist.textContent = currentArtist ? currentArtist : "";
 };
 
+//eighth part -  function to highlight any song that is being played
 const highlightCurrentSong = () => {
   const playlistSongElements = document.querySelectorAll(".playlist-song");
   const songToHighlight = document.getElementById(
@@ -196,18 +211,19 @@ const highlightCurrentSong = () => {
   );
 
   playlistSongElements.forEach((songEl) => {
-    songEl.removeAttribute("aria-current");
+    songEl.removeAttribute("aria-current");   //this will remove the attribute for each of the songs.
   });
 
-  if (songToHighlight) songToHighlight.setAttribute("aria-current", "true");
+  if (songToHighlight) songToHighlight.setAttribute("aria-current", "true");    //to add the attribute back to the currently playing song.
 };
 
+//first function made
 const renderSongs = (array) => {
   const songsHTML = array
-    .map((song)=> {
+    .map((song)=> {   //To play the song anytime the user clicks on it, add an onclick attribute to the first button element. 
       return `
       <li id="song-${song.id}" class="playlist-song">
-      <button class="playlist-song-info" onclick="playSong(${song.id})">
+      <button class="playlist-song-info" onclick="playSong(${song.id})">    
           <span class="playlist-song-title">${song.title}</span>
           <span class="playlist-song-artist">${song.artist}</span>
           <span class="playlist-song-duration">${song.duration}</span>
@@ -219,13 +235,15 @@ const renderSongs = (array) => {
       </li>
       `;
     })
-    .join("");
+    .join(""); //since songs is an Array, output will be separated by comma which is not desired hence join is used
 
   playlistSongs.innerHTML = songsHTML;
 };
 
+//tenth part - To make the application more accessible, it is important that the play button
+//describes the current song or the first song in the playlist.
 const setPlayButtonAccessibleText = () => {
-  const song = userData?.currentSong || userData?.songs[0];
+  const song = userData?.currentSong || userData?.songs[0];   //to get the currently playing song or the first song in the playlist
 
   playButton.setAttribute(
     "aria-label",
@@ -233,13 +251,18 @@ const setPlayButtonAccessibleText = () => {
   );
 };
 
+//sixth part (step 50)
+//To get the index for the current song, you can use the indexOf() method.
+//The indexOf() array method returns the first index at which a given element can be found in the array,
+//or -1 if the element is not present.
 const getCurrentSongIndex = () => userData?.songs.indexOf(userData?.currentSong);
 
+//fourth part
 playButton.addEventListener("click", () => {
     if (userData?.currentSong === null) {
-    playSong(userData?.songs[0].id);
+    playSong(userData?.songs[0].id);            //This will ensure the first song in the playlist is played first.
   } else {
-    playSong(userData?.currentSong.id);
+    playSong(userData?.currentSong.id);         //This ensures that the currently playing song will continue to play when the play button is clicked.
   }
 });
 
@@ -251,7 +274,8 @@ previousButton.addEventListener("click", playPreviousSong);
 
 shuffleButton.addEventListener("click", shuffle);
 
-audio.addEventListener("ended", () => {
+//13th part - to make next song automatically play when the song finishes
+audio.addEventListener("ended", () => {   // an event listener which will detect when the currently playing song ends, fired when the playback of a media reaches the end. 
   const currentSongIndex = getCurrentSongIndex();
   const nextSongExists = userData?.songs[currentSongIndex + 1] !== undefined;
 
@@ -267,6 +291,7 @@ setPlayButtonAccessibleText();
     }
 });
 
+//second function made
 //this is to arrange songs alphabettically
 const sortSongs = () => {
   userData?.songs.sort((a,b) => {
@@ -284,5 +309,5 @@ const sortSongs = () => {
   return userData?.songs;
 };
 
-renderSongs(sortSongs());
+renderSongs(sortSongs()); //to display songs
 setPlayButtonAccessibleText();
